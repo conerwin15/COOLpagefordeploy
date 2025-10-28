@@ -1,0 +1,52 @@
+/* Container for buttons */
+.button-container {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0; /* container margin */
+  justify-content: flex-start; /* align buttons to left */
+}
+
+/* Common button styles */
+.button {
+  padding: 12px 24px;          /* more padding for bigger click area */
+  border-radius: 30px;         /* fully rounded corners */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 300px;            /* ensures buttons same width */
+  text-align: center;
+  margin: 0;                    /* reset individual margins */
+}
+
+/* Approve Button */
+.btn-approve {
+  background-color: transparent;
+  color: #10b981;
+  border: 1px solid #10b981;
+  width: 200px;     
+  border: 1px solid #10b981; /* green border */ padding: 8px ; border-radius: 20px;
+  margin:10px;
+}
+
+.btn-approve:hover {
+  background-color: #059669;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Cancel Button */
+.btn-cancel {
+  background-color: transparent;
+  color: #f87171;
+  border: 1px solid #f87171;
+  width: 200px;     
+  border: 1px solid #b93510ff; /* green border */ padding: 8px ; border-radius: 20px;   margin:10px;
+}
+
+.btn-cancel:hover {
+  background-color: #f87171;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+  transform: translateY(-1px);
+}

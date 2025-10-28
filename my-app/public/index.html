@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/Logo/Reallybot.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="COOLPage" />
+    <title>ReallyLesson COOL page</title>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+
+    <style>
+      * {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #f4f6fb;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      #root {
+        flex: 1;
+      }
+
+      /* 🌐 Glassmorphism Footer */
+      .footer {
+        background: linear-gradient(120deg, #0a1a68, #00113d);
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        padding: 60px 20px 40px;
+      }
+
+      /* Add floating gradient orbs for depth */
+      .footer::before,
+      .footer::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        filter: blur(90px);
+      }
+      .footer::before {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        left: -100px;
+      }
+      .footer::after {
+        width: 250px;
+        height: 250px;
+        bottom: -80px;
+        right: -80px;
+      }
+
+      .footer .container {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .footer .col {
+        flex: 1;
+        min-width: 220px;
+      }
+
+      .footer .logo {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-bottom: 25px;
+        }
+
+        .footer .logo img {
+          width: 140px;
+        }
+      .footer h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        position: relative;
+      }
+
+      .footer h3::after {
+        content: "";
+        position: absolute;
+        width: 40px;
+        height: 3px;
+        background: #00c6ff;
+        bottom: -6px;
+        left: 0;
+        border-radius: 2px;
+      }
+
+      .footer a {
+        color: #dcdcdc;
+        font-size: 14px;
+        text-decoration: none;
+        display: block;
+        margin: 6px 0;
+        transition: all 0.3s;
+      }
+
+      .footer a:hover {
+        color: #00c6ff;
+        transform: translateX(4px);
+      }
+
+      .contact-info {
+        font-size: 14px;
+        color: #ddd;
+        line-height: 1.7;
+      }
+
+      .contact-info i {
+        color: #00c6ff;
+        margin-right: 8px;
+      }
+
+      .footer hr {
+        border: none;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.15);
+        margin: 30px 0;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+        font-size: 13px;
+        text-align: center;
+      }
+
+      .footer-links a {
+        color: #ccc;
+        text-decoration: none;
+        transition: 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: #00c6ff;
+      }
+
+      .copyright {
+        text-align: center;
+        margin-top: 2px;
+        font-size: 13px;
+        color: #aaa;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .footer {
+          text-align: center;
+          padding: 50px 20px;
+        }
+
+        .footer .container {
+          flex-direction: column;
+          align-items: center;
+          gap: 30px;
+        }
+
+        .footer h3::after {
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        .footer a:hover {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <!-- 🚀 Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="col">
+          <div class="logo">
+            <img src="/Logo/Reallybot.png" alt="Logo" />
+          </div>
+          <div class="contact-info">
+            <div><i class="fas fa-phone"></i> +65 8849 4824</div>
+            <div>(Text and WhatsApp messages only)</div>
+            <div><i class="fas fa-envelope"></i> jo@reallylesson.com</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <h3>Company</h3>
+          <a href="https://techtreeglobal.com" target="_blank">Our Story</a>
+          <a href="https://techtreeglobal.com/what-we-do" target="_blank">What We Do</a>
+          <a href="/values">Our Values</a>
+        </div>
+
+        <div class="col">
+          <h3>Get Involved</h3>
+          <a href="https://techtreeglobal.com/reallybots" target="_blank">ReallyBots</a>
+          <a href="https://techtreeglobal.com/how-are-we-different" target="_blank">Our Strengths</a>
+        </div>
+
+        <div class="col">
+          <h3>Resources</h3>
+          <a href="https://techtreeglobal.blogspot.com" target="_blank">Blogs</a>
+          <a href="https://techtreeglobal.com/what-clients-say" target="_blank">Our Partners</a>
+          <a href="https://techtreeglobal.com/articles" target="_blank">Articles</a>
+        </div>
+      </div>
+
+      <hr />
+      <div class="footer-links">
+        <a href="https://reallylesson.com/accessibility">Accessibility Statement</a>
+        <a href="https://reallylesson.com/site-policy">Site Policy</a>
+        <a href="https://reallylesson.com/privacy">Privacy Notice</a>
+        <a href="https://reallylesson.com/terms">Terms</a>
+      </div>
+
+      <div class="copyright">
+        © TechTree. All rights reserved. COOL Page v1.0.0
+      </div>
+    </footer>
+  </body>
+</html>

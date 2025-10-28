@@ -1,0 +1,97 @@
+.tabs-container {
+width: 100%;
+max-width: 800px;
+margin: 10px auto;
+box-sizing: border-box;
+padding: 0 10px;
+}
+
+/* Tab header layout */
+.tab-header {
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 10px;
+border-bottom: 2px solid #ddd;
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+scrollbar-width: none; /* hide scrollbar for Firefox */
+}
+
+.tab-header::-webkit-scrollbar {
+display: none; /* hide scrollbar for Chrome/Safari */
+}
+
+.tab-header button {
+flex: 0 0 auto;
+padding: 10px 16px;
+cursor: pointer;
+background: none;
+border: none;
+font-size: 0.9rem;
+font-weight: 600;
+color: #555;
+transition: all 0.3s ease;
+white-space: nowrap;
+border-radius: 8px;
+}
+
+.tab-header button:hover {
+color: #79b8fa;
+}
+
+.tab-header button.active {
+border-bottom: 3px solid #79b8fa;
+color: #79b8fa;
+}
+
+.tab-content {
+padding: 15px;
+background: #fff;
+border-radius: 0 0 8px 8px;
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+box-sizing: border-box;
+}
+
+/* 🔹 Mobile adjustments */
+@media (max-width: 768px) {
+.tabs-container {
+width: 100vw;             /* stretch full viewport width */
+max-width: 100%;
+margin-left: 50%;
+transform: translateX(-50%); /* ✅ centers full-width content without overflow */
+padding: 0;
+border-radius: 0;
+}
+
+.tab-header {
+justify-content: flex-start;
+gap: 6px;
+border-bottom: 1px solid #ddd;
+padding: 0 8px;
+background-color: #fff;
+}
+
+.tab-header button {
+padding: 8px 12px;
+font-size: 0.85rem;
+}
+
+.tab-content {
+padding: 12px;
+border-radius: 0;
+box-shadow: none;
+}
+}
+
+/* 🔹 Very small phones */
+@media (max-width: 480px) {
+.tab-header button {
+padding: 6px 10px;
+font-size: 0.8rem;
+}
+
+.tab-content {
+padding: 10px;
+}
+}

@@ -1,0 +1,4 @@
+AddType video/quicktime .mov
+AddType video/x-msvideo .avi
+AddType video/x-flv .flv
+AddType video/x-matroska .mkv
