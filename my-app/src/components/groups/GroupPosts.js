@@ -199,6 +199,326 @@ const ReplyForm = ({ onSubmit }) => {
   );
 };
 
+const NestedReplyBox = ({
+  reply,
+  post,
+  nestedReplyText,
+  setNestedReplyText,
+  nestedReplyMedia,
+  setNestedReplyMedia,
+  handleNestedReplySubmit,
+}) => {
+  const mediaList = nestedReplyMedia[reply.id] || [];
+
+  return (
+    <div
+      style={{
+        marginTop: "10px",
+        paddingLeft: "40px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px",
+      }}
+    >
+      {/* Text input */}
+      <textarea
+        placeholder="Write a reply..."
+        value={nestedReplyText[reply.id] || ""}
+        onChange={(e) =>
+          setNestedReplyText((prev) => ({ ...prev, [reply.id]: e.target.value }))
+        }
+        style={{
+          width: "100%",
+          minHeight: "50px",
+          borderRadius: "6px",
+          border: "1px solid #ddd",
+          padding: "8px",
+          resize: "none",
+          fontSize: "14px",
+        }}
+      />
+
+      {/* Media preview */}
+      {mediaList.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          {mediaList.map((file, idx) => {
+            const url = file.url || URL.createObjectURL(file);
+            const isImage = /\.(jpg|jpeg|png|gif)$/i.test(url);
+            const isVideo = /\.(mp4|webm|ogg)$/i.test(url);
+
+            return (
+              <div key={idx} style={{ position: "relative" }}>
+                {isImage && (
+                  <img
+                    src={url}
+                    alt="preview"
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      objectFit: "cover",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                    }}
+                  />
+                )}
+                {isVideo && (
+                  <video
+                    src={url}
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      objectFit: "cover",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                    }}
+                    controls
+                  />
+                )}
+                {/* Delete button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNestedReplyMedia((prev) => ({
+                      ...prev,
+                      [reply.id]: prev[reply.id].filter((_, i) => i !== idx),
+                    }));
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "-5px",
+                    right: "-5px",
+                    background: "#d9534f",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "20px",
+                    height: "20px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    lineHeight: "16px",
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Submit button */}
+      <button
+        onClick={() => handleNestedReplySubmit(post.id, reply.id)}
+        style={{
+          alignSelf: "flex-end",
+          background: "#0077b6",
+          color: "#fff",
+          border: "none",
+          borderRadius: "6px",
+          padding: "6px 12px",
+          fontSize: "14px",
+          cursor: "pointer",
+        }}
+      >
+        Reply
+      </button>
+    </div>
+  );
+};
+
+const NestedReplies = ({
+  nestedReplies,
+  reply,
+  showNestedReplies,
+  setShowNestedReplies,
+  handleLike,
+  handleDeleteReply,
+  expandedContent,
+  setExpandedContent,
+  isImage,
+  isVideo,
+  getMimeType,
+  user,
+  userLiked,
+  likes,
+  LikeButtons,
+  UnLikeButtons,
+  DeleteButtons,
+  formatDate,
+  createLinkifiedText,
+}) => {
+  const visible = showNestedReplies[reply.id];
+
+  return (
+    <div style={{ marginTop: "10px", paddingLeft: "40px" }}>
+      {/* Toggle show/hide nested replies */}
+      <button
+        onClick={() =>
+          setShowNestedReplies((prev) => ({
+            ...prev,
+            [reply.id]: !visible,
+          }))
+        }
+        style={{
+          border: "none",
+          background: "transparent",
+          color: "#0077b6",
+          fontSize: "14px",
+          cursor: "pointer",
+          marginBottom: "6px",
+        }}
+      >
+        {visible
+          ? "Hide replies"
+          : `View ${nestedReplies.length} repl${
+              nestedReplies.length > 1 ? "ies" : "y"
+            }`}
+      </button>
+
+      {visible && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {nestedReplies.map((nested, idx) => (
+            <div
+              key={nested.id || idx}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "10px",
+                background: "#fafafa",
+                padding: "8px",
+                borderRadius: "8px",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+              }}
+            >
+              <img
+                src={nested.profile_picture || "/default-avatar.png"}
+                alt="avatar"
+                style={{
+                  width: "28px",
+                  height: "28px",
+                  borderRadius: "50%",
+                }}
+              />
+              <div>
+                <strong>
+                  {nested.first_name} {nested.last_name}
+                </strong>
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  {formatDate(nested.created_at)}
+                </div>
+                <p
+                  style={{
+                    fontSize: "14px",
+                    color: "#374151",
+                    marginBottom: "6px",
+                    whiteSpace: "pre-wrap",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: createLinkifiedText(
+                      expandedContent[nested.id]
+                        ? String(nested.text || "")
+                        : String(nested.text || "")
+                            .split(" ")
+                            .slice(0, 50)
+                            .join(" ") +
+                          ((nested.text || "").split(" ").length > 50
+                            ? "..."
+                            : "")
+                    ),
+                  }}
+                ></p>
+
+                {/* Media preview */}
+                {Array.isArray(nested.media) && nested.media.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    {nested.media.map((m, i) => {
+                      const mime = getMimeType(m.url);
+                      return (
+                        <div key={i} style={{ position: "relative" }}>
+                          {isImage(m.url) && (
+                            <img
+                              src={m.url}
+                              alt="img"
+                              style={{
+                                width: "60px",
+                                height: "60px",
+                                objectFit: "cover",
+                                borderRadius: "6px",
+                              }}
+                            />
+                          )}
+                          {isVideo(m.url) && (
+                            <video
+                              src={m.url}
+                              controls
+                              style={{
+                                width: "60px",
+                                height: "60px",
+                                borderRadius: "6px",
+                              }}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div style={{ display: "flex", gap: "4px", marginTop: "4px" }}>
+                  {/* Like */}
+                  <button
+                    onClick={() => handleLike(nested.id, "reply")}
+                    style={{
+                      fontSize: "12px",
+                      color: userLiked[`reply_${nested.id}`]
+                        ? "#0077b6"
+                        : "#555",
+                      fontWeight: "bold",
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {userLiked[`reply_${nested.id}`]
+                      ? <LikeButtons />
+                      : <UnLikeButtons />}
+                    <span style={{ color: "#666" }}>
+                      {likes[`reply_${nested.id}`] || 0}
+                    </span>
+                  </button>
+
+                  {/* Delete */}
+                  {user &&
+                    (Number(user.id) === Number(nested.user_id) ||
+                      user.role === "admin") && (
+                      <button
+                        onClick={() => handleDeleteReply(nested.id)}
+                        style={{
+                          fontSize: "12px",
+                          color: "#d9534f",
+                          fontWeight: "bold",
+                          background: "transparent",
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <DeleteButtons />
+                      </button>
+                    )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const GroupPosts = ({ user, onRefresh }) => {
   const { groupId } = useParams();
   const [posts, setPosts] = useState([]);
@@ -312,7 +632,7 @@ useEffect(() => {
   }
 }, [groupId, user]);
 
-const [activeReplyBox, setActiveReplyBox] = useState(null);
+const [activeReplyBox, setActiveReplyBox] = useState({});
 
 const handleNestedReplySubmit = async (postId, parentId) => {
   const text = nestedReplyText?.[parentId]?.trim() || "";
@@ -1690,12 +2010,13 @@ marginRight: 'auto',
       </button>
     )
   }
-    <button
-                    onClick={() =>
-                      setActiveReplyBox((prev) =>
-                        prev === reply.id ? null : reply.id
-                      )
-                    }
+  <button
+  onClick={() =>
+    setActiveReplyBox((prev) => ({
+      ...prev,
+      [reply.id]: !prev[reply.id],
+    }))
+  }
                     style={{
                       fontSize: "13px",
                       color: "#0077b6",
@@ -1710,16 +2031,11 @@ marginRight: 'auto',
 
                   </button>
            
-      {activeReplyBox === reply.id && (
+{activeReplyBox[reply.id] && (
   <div style={{ marginTop: "8px" }}>
-    {/* Reply input  <img
-        src={user.profile_picture || "/default-avatar.png"}
-        alt="avatar"
-        style={{ width: "35px", height: "35px", borderRadius: "50%" }}
-      />*/}
     <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-     
       <div style={{ flex: 1 }}>
+        {/* Text area */}
         <textarea
           rows="2"
           placeholder="Write a reply..."
@@ -1738,699 +2054,140 @@ marginRight: 'auto',
             fontSize: "13px",
           }}
         />
+
         {/* Media input */}
-<div
-  onDragOver={(e) => e.preventDefault()}
-  onDrop={(e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    setNestedReplyMedia((prev) => ({
-      ...prev,
-      [reply.id]: [...(prev[reply.id] || []), ...files],
-    }));
-  }}
-  onClick={() => document.getElementById(`nested-upload-${reply.id}`).click()}
-  style={{
-    marginTop: "6px",
-    padding: "10px",
-    border: "2px dashed #0077b6",
-    borderRadius: "8px",
-    textAlign: "center",
-    cursor: "pointer",
-    color: "#0077b6",
-    fontSize: "14px",
-    position: "relative",
-  }}
->
-  Drag & Drop files here or click to select
-  <input
-    type="file"
-    id={`nested-upload-${reply.id}`}
-    multiple
-    style={{ display: "none" }}
-    onChange={(e) => {
-      const files = Array.from(e.target.files);
-      setNestedReplyMedia((prev) => ({
-        ...prev,
-        [reply.id]: [...(prev[reply.id] || []), ...files],
-      }));
-    }}
-  />
-</div>
-
-{/* Preview selected files */}
-<div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px", gap: "10px" }}>
-  {(nestedReplyMedia[reply.id] || []).map((file, idx) => {
-    const url = URL.createObjectURL(file);
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
-
-    return (
-      <div key={idx} style={{ position: "relative" }}>
-        {isImage && (
-          <img
-            src={url}
-            alt="preview"
-            style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px" }}
-          />
-        )}
-        {isVideo && (
-          <video
-            src={url}
-            style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px" }}
-            controls
-          />
-        )}
-        {/* Delete button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setNestedReplyMedia((prev) => ({
-              ...prev,
-              [reply.id]: prev[reply.id].filter((_, i) => i !== idx),
-            }));
-          }}
-          style={{
-            position: "absolute",
-            top: "-5px",
-            right: "-5px",
-            background: "#d9534f",
-            color: "#fff",
-            border: "none",
-            borderRadius: "50%",
-            width: "20px",
-            height: "20px",
-            cursor: "pointer",
-          }}
-        >
-          ×
-        </button>
-      </div>
-    );
-  })}
-</div>
-        <div style={{ marginTop: "6px" }}>
-          <button
-            onClick={() => handleNestedReplySubmit(post.id, reply.id)}
-            style={{
-              padding: "6px 12px",
-              background: "#0077b6",
-              color: "#fff",
-              border: "none",
-              borderRadius: "30px",
-              cursor: "pointer",
-              marginRight: "10px",
-            }}
-          >
-            Send
-          </button>
-      {showReplies[post.id] && (
-  <div style={{ marginTop: "20px" }}>
-    <AnimatePresence>
-      {(post.replies || [])
-        .filter((r) => !r.parent_reply_id) // Only show top-level replies
-        .slice(0, visibleReplies[post.id] ?? 7)
-        .map((reply, i) => {
-          const nestedReplies = (post.replies || []).filter(
-            (r) => r.parent_reply_id === reply.id
-          );
-
-          return (
-            <motion.div
-              key={reply.id || i}
-              ref={
-                i === ((visibleReplies[post.id] ?? 7) - 1)
-                  ? scrollRef
-                  : null
-              }
-              initial={{ opacity: 0, translateY: 10 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -10 }}
-              transition={{ duration: 0.3 }}
-              style={{
-                display: "flex",
-                gap: "10px",
-                borderTop: "1px solid #eee",
-                paddingTop: "10px",
-                marginTop: "10px",
-              }}
-            >
-              {/* Avatar */}
-              <img
-                src={reply.profile_picture || "/default-avatar.png"}
-                alt="avatar"
-                style={{
-                  width: "35px",
-                  height: "35px",
-                  borderRadius: "50%",
-                }}
-              />
-
-              {/* Reply content */}
-              <div style={{ flex: 1 }}>
-                <strong>
-                  {reply.first_name} {reply.last_name}
-                </strong>
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  {formatDate(reply.created_at)}
-                </div>
-
-                <p
-                  style={{
-                    fontSize: "15px",
-                    color: "#374151",
-                    marginBottom: "8px",
-                    whiteSpace: "pre-wrap",
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      expandedContent[reply.id] ||
-                      reply.text.split(" ").length <= 50
-                        ? createLinkifiedText(String(reply.text))
-                        : createLinkifiedText(
-                            String(reply.text)
-                              .split(" ")
-                              .slice(0, 50)
-                              .join(" ") + "..."
-                          ),
-                  }}
-                ></p>
-
-                {/* --- Media --- */}
-                {Array.isArray(reply.media) && reply.media.length > 0 && (
-                  <>
-                    {reply.media
-                      .slice(
-                        0,
-                        showAllImages[reply.id]
-                          ? reply.media.length
-                          : 2
-                      )
-                      .map((item, idx) => {
-                        const isImg = isImage(item.url);
-                        const isVid = isVideo(item.url);
-
-                        return isImg ? (
-                          <img
-                            key={idx}
-                            src={item.url}
-                            alt="reply media"
-                            style={{
-                              margin: "10px",
-                              maxWidth: "50%",
-                              borderRadius: "4px",
-                              objectFit: "contain",
-                            }}
-                          />
-                        ) : isVid ? (
-                          <video
-                            key={idx}
-                            controls
-                            playsInline
-                            style={{
-                              background: "none",
-                              border: "none",
-                              margin: "10px",
-                              maxWidth: "50%",
-                              borderRadius: "4px",
-                              objectFit: "contain",
-                            }}
-                          >
-                            <source
-                              src={item.url}
-                              type={getMimeType(item.url)}
-                            />
-                          </video>
-                        ) : null;
-                      })}
-
-                    {reply.media.length > 2 && (
-                      <button
-                        onClick={() =>
-                          setShowAllImages((prev) => ({
-                            ...prev,
-                            [reply.id]: !prev[reply.id],
-                          }))
-                        }
-                        style={{
-                          width: "120px",
-                          border: "none",
-                          background: "#f9f9f9",
-                          borderRadius: "6px",
-                          padding: "8px",
-                          color: "#0077b6",
-                          marginTop: "10px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {showAllImages[reply.id]
-                          ? "Show less"
-                          : "See more media"}
-                      </button>
-                    )}
-                  </>
-                )}
-
-                {/* --- Actions (Like / Delete / Reply) --- */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "4px",
-                    marginTop: "5px",
-                  }}
-                >
-                  {/* Like button */}
-                  <button
-                    onClick={() => handleLike(reply.id, "reply")}
-                    style={{
-                      fontSize: "13px",
-                      color: userLiked[`reply_${reply.id}`]
-                        ? "#0077b6"
-                        : "#555",
-                      fontWeight: "bold",
-                      background: "transparent",
-                      border: "none",
-                      padding: "4px 10px",
-                      borderRadius: "20px",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px",
-                    }}
-                  >
-                    {userLiked[`reply_${reply.id}`] ? (
-                      <LikeButtons />
-                    ) : (
-                      <UnLikeButtons />
-                    )}
-                    <span style={{ color: "#666" }}>
-                      {likes[`reply_${reply.id}`] || 0}
-                    </span>
-                  </button>
-
-                  {/* Delete button */}
-                  {user &&
-                    (Number(user.id) === Number(reply.user_id) ||
-                      user.role === "admin") && (
-                      <button
-                        onClick={() => handleDeleteReply(reply.id)}
-                        style={{
-                          fontSize: "13px",
-                          color: "#d9534f",
-                          fontWeight: "bold",
-                          background: "transparent",
-                          border: "none",
-                          padding: "4px 10px",
-                          borderRadius: "20px",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
-                      >
-                        <DeleteButtons />
-                      </button>
-                    )}
-
-                  {/* ✅ Reply button */}
-                  <button
-                    onClick={() =>
-                      setActiveReplyBox((prev) =>
-                        prev === reply.id ? null : reply.id
-                      )
-                    }
-                    style={{
-                      fontSize: "13px",
-                      color: "#0077b6",
-                      fontWeight: "bold",
-                      background: "transparent",
-                      border: "none",
-                      padding: "4px 10px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Reply
-
-                  </button>
-                </div>
-
-                {/* ✅ Reply box (for replying to this reply) */}
-       {activeReplyBox === reply.id && (
-  <div style={{ marginTop: "8px" }}>
-    {/* Reply input  <img
-        src={user.profile_picture || "/default-avatar.png"}
-        alt="avatar"
-        style={{ width: "35px", height: "35px", borderRadius: "50%" }}
-      />*/}
-    <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-     
-      <div style={{ flex: 1 }}>
-        <textarea
-          rows="2"
-          placeholder="Write a reply..."
-          value={nestedReplyText[reply.id] || ""}
-          onChange={(e) =>
-            setNestedReplyText((prev) => ({
-              ...prev,
-              [reply.id]: e.target.value,
-            }))
-          }
-          style={{
-            width: "100%",
-            borderRadius: "8px",
-            border: "1px solid #ddd",
-            padding: "6px",
-            fontSize: "13px",
-          }}
-        />
-        {/* Media input */}
-<div
-  onDragOver={(e) => e.preventDefault()}
-  onDrop={(e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    setNestedReplyMedia((prev) => ({
-      ...prev,
-      [reply.id]: [...(prev[reply.id] || []), ...files],
-    }));
-  }}
-  onClick={() => document.getElementById(`nested-upload-${reply.id}`).click()}
-  style={{
-    marginTop: "6px",
-    padding: "10px",
-    border: "2px dashed #0077b6",
-    borderRadius: "8px",
-    textAlign: "center",
-    cursor: "pointer",
-    color: "#0077b6",
-    fontSize: "14px",
-    position: "relative",
-  }}
->
-  Drag & Drop files here or click to select
-  <input
-    type="file"
-    id={`nested-upload-${reply.id}`}
-    multiple
-    style={{ display: "none" }}
-    onChange={(e) => {
-      const files = Array.from(e.target.files);
-      setNestedReplyMedia((prev) => ({
-        ...prev,
-        [reply.id]: [...(prev[reply.id] || []), ...files],
-      }));
-    }}
-  />
-</div>
-
-{/* Preview selected files */}
-<div style={{ display: "flex", flexWrap: "wrap", marginTop: "10px", gap: "10px" }}>
-  {(nestedReplyMedia[reply.id] || []).map((file, idx) => {
-    const url = URL.createObjectURL(file);
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
-
-    return (
-      <div key={idx} style={{ position: "relative" }}>
-        {isImage && (
-          <img
-            src={url}
-            alt="preview"
-            style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px" }}
-          />
-        )}
-        {isVideo && (
-          <video
-            src={url}
-            style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "6px" }}
-            controls
-          />
-        )}
-        {/* Delete button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setNestedReplyMedia((prev) => ({
-              ...prev,
-              [reply.id]: prev[reply.id].filter((_, i) => i !== idx),
-            }));
-          }}
-          style={{
-            position: "absolute",
-            top: "-5px",
-            right: "-5px",
-            background: "#d9534f",
-            color: "#fff",
-            border: "none",
-            borderRadius: "50%",
-            width: "20px",
-            height: "20px",
-            cursor: "pointer",
-          }}
-        >
-          ×
-        </button>
-      </div>
-    );
-  })}
-</div>
-        <div style={{ marginTop: "6px" }}>
-          <button
-            onClick={() => handleNestedReplySubmit(post.id, reply.id)}
-            style={{
-              padding: "6px 12px",
-              background: "#0077b6",
-              color: "#fff",
-              border: "none",
-              borderRadius: "30px",
-              cursor: "pointer",
-              marginRight: "10px",
-            }}
-          >
-            Send
-          </button>
-      
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-                {/* ✅ Nested replies section */}
-                  {nestedReplies.length > 0 && (
-  <div style={{ marginTop: "10px" }}>
-    <button
-      onClick={() =>
-        setShowNestedReplies((prev) => ({
-          ...prev,
-          [reply.id]: !prev[reply.id],
-        }))
-      }
-      style={{
-        background: "none",
-        border: "none",
-        color: "#0077b6",
-        cursor: "pointer",
-        fontSize: "13px",
-        padding: 0,
-      }}
-    >
-      {showNestedReplies[reply.id]
-        ? "Hide replies"
-        : `View ${nestedReplies.length} repl${
-            nestedReplies.length > 1 ? "ies" : "y"
-          }`}
-    </button>
-
-    {showNestedReplies[reply.id] &&
-      nestedReplies.map((child) => (
         <div
-          key={child.id}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault();
+            const files = Array.from(e.dataTransfer.files);
+            setNestedReplyMedia((prev) => ({
+              ...prev,
+              [reply.id]: [...(prev[reply.id] || []), ...files],
+            }));
+          }}
+          onClick={() =>
+            document.getElementById(`nested-upload-${reply.id}`).click()
+          }
+          style={{
+            marginTop: "6px",
+            padding: "10px",
+            border: "2px dashed #0077b6",
+            borderRadius: "8px",
+            textAlign: "center",
+            cursor: "pointer",
+            color: "#0077b6",
+            fontSize: "14px",
+            position: "relative",
+          }}
+        >
+          Drag & Drop files here or click to select
+          <input
+            type="file"
+            id={`nested-upload-${reply.id}`}
+            multiple
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const files = Array.from(e.target.files);
+              setNestedReplyMedia((prev) => ({
+                ...prev,
+                [reply.id]: [...(prev[reply.id] || []), ...files],
+              }));
+            }}
+          />
+        </div>
+
+        {/* Preview selected files */}
+        <div
           style={{
             display: "flex",
+            flexWrap: "wrap",
+            marginTop: "10px",
             gap: "10px",
-            marginLeft: "40px",
-            marginTop: "8px",
-            borderLeft: "2px solid #eee",
-            paddingLeft: "10px",
           }}
         >
-          {/* Child reply avatar */}
-          <img
-            src={child.profile_picture || "/default-avatar.png"}
-            alt="avatar"
-            style={{ width: "30px", height: "30px", borderRadius: "50%" }}
-          />
+          {(nestedReplyMedia[reply.id] || []).map((file, idx) => {
+            const url = URL.createObjectURL(file);
+            const isImage = file.type.startsWith("image/");
+            const isVideo = file.type.startsWith("video/");
 
-          {/* Child reply content */}
-          <div style={{ flex: 1 }}>
-  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-    <strong>
-      {child.first_name} {child.last_name}
-    </strong>
-    {/* 🕒 Time Display */}
-    {child.created_at && (
-      <span
-        style={{
-          fontSize: "12px",
-          color: "#888",
-          marginLeft: "6px",
-        }}
-      >
-        {formatDate(child.created_at)}
-      </span>
-    )}
-  </div>
-
-  <p
-    style={{
-      fontSize: "14px",
-      margin: "4px 0",
-      color: "#444",
-    }}
-  >
-
-
-   <div>
-  <p
-    style={{
-      fontSize: "15px",
-      color: "#374151",
-      marginBottom: "8px",
-      whiteSpace: "pre-wrap",
-    }}
-    dangerouslySetInnerHTML={{
-      __html: createLinkifiedText(
-        expandedContent[child.id]
-          ? String(child.text)
-          : String(child.text)
-              .split(" ")
-              .slice(0, 50)
-              .join(" ") +
-            (child.text.split(" ").length > 50 ? "..." : "")
-      ),
-    }}
-  ></p>
-
-  {/* ✅ See more / See less button */}
-  {child.text.split(" ").length > 50 && (
-    <button
-      onClick={() =>
-        setExpandedContent((prev) => ({
-          ...prev,
-          [child.id]: !prev[child.id],
-        }))
-      }
-      style={{
-        fontSize: "13px",
-        color: "#0077b6",
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: 0,
-      }}
-    >
-      {expandedContent[child.id] ? "See less" : "See more"}
-    </button>
-  )}
-</div>
-  </p>
-
-  {/* 🖼️ Optional: media for nested reply */}
-  {Array.isArray(child.media) &&
-    child.media.map((item, idx) => {
-      const isImg = isImage(item.url);
-      const isVid = isVideo(item.url);
-      return isImg ? (
-        <img
-          key={idx}
-          src={item.url}
-          alt="reply media"
-          style={{
-            maxWidth: "25%",
-            margin: "5px 0",
-            borderRadius: "4px",
-            objectFit: "contain",
-          }}
-        />
-      ) : isVid ? (
-        <video
-          key={idx}
-          controls
-          playsInline
-          style={{
-            maxWidth: "25%",
-            margin: "5px 0",
-            borderRadius: "4px",
-            objectFit: "contain",
-          }}
-        >
-          <source src={item.url} type={getMimeType(item.url)} />
-        </video>
-      ) : null;
-    })}
-
-  {/* ❤️ Like + 🗑️ Delete buttons */}
-  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
-    <button
-      onClick={() => handleLike(child.id, "reply")}
-      style={{
-        fontSize: "12px",
-        color: userLiked[`reply_${child.id}`] ? "#0077b6" : "#555",
-        fontWeight: "bold",
-        background: "transparent",
-        border: "none",
-        padding: "4px 8px",
-        borderRadius: "20px",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: "4px",
-      }}
-    >
-      {userLiked[`reply_${child.id}`] ? <LikeButtons /> : <UnLikeButtons />}
-      <span style={{ color: "#666" }}>{likes[`reply_${child.id}`] || 0}</span>
-    </button>
-
-    {user && (user.id === child.user_id || user.role === "admin") && (
-      <button
-        onClick={() => handleDeleteReply(child.id)}
-        style={{
-          padding: "4px 8px",
-          fontSize: "12px",
-          background: "none",
-          color: "#d9534f",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        }}
-      >
-        <DeleteButtons />
-      </button>
-    )}
-  </div>
-</div>
-
-
+            return (
+              <div key={idx} style={{ position: "relative" }}>
+                {isImage && (
+                  <img
+                    src={url}
+                    alt="preview"
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      objectFit: "cover",
+                      borderRadius: "6px",
+                    }}
+                  />
+                )}
+                {isVideo && (
+                  <video
+                    src={url}
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      objectFit: "cover",
+                      borderRadius: "6px",
+                    }}
+                    controls
+                  />
+                )}
+                {/* Delete button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setNestedReplyMedia((prev) => ({
+                      ...prev,
+                      [reply.id]: prev[reply.id].filter((_, i) => i !== idx),
+                    }));
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: "-5px",
+                    right: "-5px",
+                    background: "#d9534f",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "20px",
+                    height: "20px",
+                    cursor: "pointer",
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
         </div>
 
-        
-      ))}
-  </div>
-)}
-              </div>
-            </motion.div>
-          );
-        })}
-    </AnimatePresence>
-  </div>
-)}
+        {/* Send button */}
+        <div style={{ marginTop: "6px" }}>
+          <button
+            onClick={() => handleNestedReplySubmit(post.id, reply.id)}
+            style={{
+              padding: "6px 12px",
+              background: "#0077b6",
+              color: "#fff",
+              border: "none",
+              borderRadius: "30px",
+              cursor: "pointer",
+              marginRight: "10px",
+            }}
+          >
+            Send
+          </button>
         </div>
       </div>
     </div>
   </div>
 )}
+
   
 </div>
 

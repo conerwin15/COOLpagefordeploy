@@ -24,7 +24,7 @@ const AboutUs = () => {
         justifyContent: "center",
         padding: "60px 20px",
         gap: "50px",
-        maxWidth: "1200px",
+        maxWidth: "900px",
         margin: "0 auto",
     
         transform: visible ? "translateY(0)" : "translateY(40px)",

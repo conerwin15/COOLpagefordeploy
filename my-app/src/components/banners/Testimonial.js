@@ -48,10 +48,11 @@ const TestimonialCarousel = () => {
   return (
     <section
       style={{
-        padding: "60px 20px",
+        padding: "10px 10px",
         background: "linear-gradient(135deg, #f5f7fa 0%, #e4ebf5 100%)",
         textAlign: "center",
         overflow: "hidden",
+        
       }}
     >
       <h2
@@ -59,7 +60,7 @@ const TestimonialCarousel = () => {
           fontSize: "clamp(1.5rem, 3vw, 2rem)",
           fontWeight: "700",
           color: "#161718",
-          marginBottom: "40px",
+          marginBottom: "1px",
         }}
       >
          
@@ -89,7 +90,7 @@ const TestimonialCarousel = () => {
       <div
         style={{
           position: "relative",
-          maxWidth: "700px",
+          maxWidth: "900px",
           margin: "0 auto",
           overflow: "hidden",
         }}
@@ -171,7 +172,7 @@ const TestimonialCarousel = () => {
                 fontStyle: "italic",
                 lineHeight: "1.8",
                 margin: "0 auto 20px",
-                maxWidth: "600px",
+                maxWidth: "900px",
               }}
             >
               “{t.message}”

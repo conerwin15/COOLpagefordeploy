@@ -41,7 +41,7 @@ import  GoogleLogin  from './MyGoogleLogin'
 import EventDetails from "./components/addCoolactivities/EventDetails.js"
 import EventDetailslist from "./components/addCoolactivities/AlleventlistGuest.js"
 import Evenlistalls from "./components/addCoolactivities/Alleventlist.js"
-
+import UserManagementPage  from "./components/admin/UserManager.js"
 
 
     const API_URL= process.env.REACT_APP_API_URL;
@@ -283,7 +283,10 @@ return (
 
 <Route path ="/groups/groupid" element ={<GroupDashboard  user={user} posts={posts}/>} />
 
-     
+    
+  <Route path="/usermanagement" element={<UserManagementPage user={user} />} />
+  {/* existing routes */}
+
 <Route
   path="/news/:id"
   element={<NewsDetails />}
@@ -1785,7 +1788,17 @@ function OnlineUser({ user, posts, onRefresh, onLike, onLogout, navigateToProfil
 
 
 
-function AdminPanel({ user, posts, onRefresh, onLike, likes, userLiked, navigateToProfile, onLogout }) {
+function AdminPanel({
+  user,
+  posts,
+  onRefresh,
+  onLike,
+  likes,
+  userLiked,
+  navigateToProfile,
+  onLogout,
+  onUserManagement, // ✅ Add this callback prop for navigation
+}) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
   const navigate = useNavigate();
@@ -1793,163 +1806,194 @@ function AdminPanel({ user, posts, onRefresh, onLike, likes, userLiked, navigate
   const toggleDropdown = () => setShowDropdown((prev) => !prev);
 
   const dropdownItemStyle = {
-    padding: '10px 20px',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    color: '#333',
-    backgroundColor: '#fff',
-    transition: 'background-color 0.3s, color 0.3s',
-    borderBottom: '1px solid #eee',
-    fontSize: '0.95rem',
+    padding: "10px 20px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    color: "#333",
+    backgroundColor: "#fff",
+    transition: "background-color 0.3s, color 0.3s",
+    borderBottom: "1px solid #eee",
+    fontSize: "0.95rem",
   };
 
   const dropdownHoverStyle = {
-    backgroundColor: '#f0f8ff',
-    color: '#0077b6',
+    backgroundColor: "#f0f8ff",
+    color: "#0077b6",
   };
 
   return (
-    <div style={{ width: '100%', margin: 0, padding: 0 }}>
-     <header
+    <div style={{ width: "100%", margin: 0, padding: 0 }}>
+      <header
         style={{
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  height: "50px",  width: "100%",
-  padding: "8px 20px",
-
-  /* ✅ Glassmorphism core */
-  background: "rgba(255, 255, 255, 0.15)", // transparent white layer
-  backdropFilter: "blur(12px) saturate(180%)",
-  WebkitBackdropFilter: "blur(12px) saturate(180%)",
-
-  /* ✅ Optional subtle gradient overlay */
-  backgroundImage:
-    "linear-gradient(to right, rgba(255, 255, 255, 0.15), rgba(173, 216, 230, 0.25))",
-
-  /* ✅ Border + shadow for depth */
-  border: "1px solid rgba(255, 255, 255, 0.3)",
-  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-
-  position: "sticky",
-  top: 0,
-  zIndex: 1000,
-
-}}
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          height: "50px",
+          width: "100%",
+          padding: "8px 20px",
+          background: "rgba(255, 255, 255, 0.15)",
+          backdropFilter: "blur(12px) saturate(180%)",
+          WebkitBackdropFilter: "blur(12px) saturate(180%)",
+          backgroundImage:
+            "linear-gradient(to right, rgba(255, 255, 255, 0.15), rgba(173, 216, 230, 0.25))",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+        }}
       >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        {/* Left side logo */}
+        <div style={{ display: "flex", alignItems: "center" }}>
           <img
             src={Reallybot}
             alt="Logo"
             style={{ height: 30, marginRight: 12 }}
           />
-          <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#004d70' }}></h2>
+          <h2 style={{ margin: 0, fontSize: "1.5rem", color: "#004d70" }}></h2>
         </div>
 
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '12px' }}>
-  <Notifications userId={user?.id} />          <div
-  onClick={toggleDropdown}
-  style={{
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '1rem',
-    color: '#004d70',
-    fontWeight: 'bold',
-    userSelect: 'none',
-   
-  }}
->
+        {/* Right side profile + dropdown */}
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          <Notifications userId={user?.id} />
 
-<p
-  style={{
-    margin: "10px",
-    display: window.innerWidth < 768 ? "none" : "block", // hide on mobile
-    fontSize: "14px", // ✅ use fontSize instead of size
-  }}
->
-  Welcome back, {user.first_name || "User"}
-</p>
-
+          <div
+            onClick={toggleDropdown}
+            style={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "1rem",
+              color: "#004d70",
+              fontWeight: "bold",
+              userSelect: "none",
+            }}
+          >
+            <p
+              style={{
+                margin: "10px",
+                display: window.innerWidth < 768 ? "none" : "block",
+                fontSize: "14px",
+              }}
+            >
+              Welcome back, {user.first_name || "User"}
+            </p>
 
             <img
-  src={getFullPicUrl(user?.profile_pic)}
-  onError={(e) => {
-    e.target.onerror = null;
-    e.target.src = defaultAvatar;
-  }}
-  alt="avatar"
-  style={{
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-    marginRight: '8px',
-  }}
-/>
-          <i className="fa fa-caret-down" style={{ marginLeft: '8px', marginRight:'10px' }}></i>
+              src={getFullPicUrl(user?.profile_pic)}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = defaultAvatar;
+              }}
+              alt="avatar"
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                marginRight: "8px",
+              }}
+            />
+            <i
+              className="fa fa-caret-down"
+              style={{ marginLeft: "8px", marginRight: "10px" }}
+            ></i>
           </div>
 
+          {/* ✅ Dropdown Menu */}
           {showDropdown && (
             <div
-             style={{
-      position: 'absolute',
-      top: '100%',
-      right: 0,
-      backgroundColor: '#fff',
-      border: '1px solid #e0e0e0',
-      borderRadius: '8px',
-      marginTop: '10px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-      zIndex: 1000,
-      width: '240px',
-      overflow: 'hidden',
-      fontFamily: 'sans-serif',
-    }}
+              style={{
+                position: "absolute",
+                top: "100%",
+                right: 0,
+                backgroundColor: "#fff",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                marginTop: "10px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                zIndex: 1000,
+                width: "240px",
+                overflow: "hidden",
+                fontFamily: "sans-serif",
+              }}
             >
+              {/* 🧾 My Post */}
               <div
                 onClick={() => {
                   setShowDropdown(false);
                   navigateToProfile();
                 }}
-                onMouseEnter={() => setHoveredItem('post')}
+                onMouseEnter={() => setHoveredItem("post")}
                 onMouseLeave={() => setHoveredItem(null)}
                 style={{
                   ...dropdownItemStyle,
-                  ...(hoveredItem === 'post' ? dropdownHoverStyle : {}),
+                  ...(hoveredItem === "post" ? dropdownHoverStyle : {}),
                 }}
               >
                 <i className="fa fa-file-alt" style={{ marginRight: 8 }}></i>
                 My Post
               </div>
 
+              {/* 👤 My Profile */}
               <div
                 onClick={() => {
                   setShowDropdown(false);
-                  navigate('/myprofileinfo');
+                  navigate("/myprofileinfo");
                 }}
-                onMouseEnter={() => setHoveredItem('profile')}
+                onMouseEnter={() => setHoveredItem("profile")}
                 onMouseLeave={() => setHoveredItem(null)}
                 style={{
                   ...dropdownItemStyle,
-                  ...(hoveredItem === 'profile' ? dropdownHoverStyle : {}),
+                  ...(hoveredItem === "profile" ? dropdownHoverStyle : {}),
                 }}
               >
                 <i className="fa fa-user" style={{ marginRight: 8 }}></i>
                 My Profile
               </div>
 
+              {/* 👥 User Management (admin only) */}
+              {user?.role === "admin" && (
+                <div
+                  onClick={() => {
+                    setShowDropdown(false);
+    navigate("/usermanagement")                  }}
+                  onMouseEnter={() => setHoveredItem("userManagement")}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  style={{
+                    ...dropdownItemStyle,
+                    ...(hoveredItem === "userManagement"
+                      ? dropdownHoverStyle
+                      : {}),
+                  }}
+                >
+                  <i
+                    className="fa fa-users-cog"
+                    style={{ marginRight: 8}}
+                  ></i>
+                  User Management
+                </div>
+              )}
+
+              {/* 🚪 Logout */}
               <div
                 onClick={() => {
                   setShowDropdown(false);
                   onLogout();
                 }}
-                onMouseEnter={() => setHoveredItem('logout')}
+                onMouseEnter={() => setHoveredItem("logout")}
                 onMouseLeave={() => setHoveredItem(null)}
                 style={{
                   ...dropdownItemStyle,
-                  ...(hoveredItem === 'logout' ? dropdownHoverStyle : {}),
+                  ...(hoveredItem === "logout" ? dropdownHoverStyle : {}),
                 }}
               >
                 <i className="fa fa-sign-out-alt" style={{ marginRight: 8 }}></i>
@@ -1960,8 +2004,9 @@ function AdminPanel({ user, posts, onRefresh, onLike, likes, userLiked, navigate
         </div>
       </header>
 
-      <main style={{ padding: '0px' }}>
-        <section style={{ marginBottom: '10px' }}>
+      {/* Main content */}
+      <main style={{ padding: "0px" }}>
+        <section style={{ marginBottom: "10px" }}>
           {/* <PostForm onSubmit={onRefresh} user={user} /> */}
         </section>
 
@@ -1979,6 +2024,7 @@ function AdminPanel({ user, posts, onRefresh, onLike, likes, userLiked, navigate
     </div>
   );
 }
+
 
 function ProfilePage({ user, posts, onLogout, navigateToHome, onRefresh }) {
   const [showDropdown, setShowDropdown] = useState(false);

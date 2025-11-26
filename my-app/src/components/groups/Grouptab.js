@@ -119,7 +119,7 @@ export default function Tabs({ user, onLike }) {
 
   return (
     <div className="tabs-container">
-      <GroupInfo groupId={groupId} members={members || []} />
+      <GroupInfo groupId={groupId} members={members || []} user ={user}/>
 
       {/* Tab headers */}
       <div className="tab-header">

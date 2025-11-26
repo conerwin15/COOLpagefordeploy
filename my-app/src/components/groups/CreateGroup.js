@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 
 const CreateGroup = ({ user }) => {
   const [groupName, setGroupName] = useState("");
@@ -11,18 +10,19 @@ const CreateGroup = ({ user }) => {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [myGroups, setMyGroups] = useState([]);
-  const [publicGroups, setPublicGroups] = useState([]);
-  const [allGroups, setAllGroups] = useState([]); // ✅ for admin
+  const [allGroups, setAllGroups] = useState([]);
   const [pendingInvites, setPendingInvites] = useState([]);
   const [sentInvites, setSentInvites] = useState([]);
   const [selectedTab, setSelectedTab] = useState("my");
 
-  const API_URL = "http://localhost/coolpage/my-app/backend";
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost/coolpage/my-app/backend";
 
+  // ✅ Fetch groups
   const fetchGroups = async () => {
+    if (!user?.id) return;
     try {
       let url =
-        user.role === "admin"
+        user?.role === "admin"
           ? `${API_URL}/get_all_groups.php`
           : `${API_URL}/get_groups.php?user_id=${user.id}`;
 
@@ -30,11 +30,10 @@ const CreateGroup = ({ user }) => {
       const data = await res.json();
 
       if (data.success) {
-        if (user.role === "admin") {
+        if (user?.role === "admin") {
           setAllGroups(data.groups || []);
         } else {
           setMyGroups(data.my_groups || []);
-          setPublicGroups(data.public_groups || []);
           setPendingInvites(data.pending_invites || []);
           setSentInvites(data.sent_invites || []);
         }
@@ -45,7 +44,7 @@ const CreateGroup = ({ user }) => {
   };
 
   useEffect(() => {
-    if (user?.id) fetchGroups();
+    fetchGroups();
   }, [user]);
 
   useEffect(() => {
@@ -58,7 +57,7 @@ const CreateGroup = ({ user }) => {
     }
   }, [message]);
 
-  // ✅ Create new group
+  // ✅ Create new group (Admin only)
   const handleCreateGroup = async () => {
     if (!groupName.trim()) {
       setMessage("⚠️ Group name is required.");
@@ -66,29 +65,13 @@ const CreateGroup = ({ user }) => {
       return;
     }
 
-    const isDuplicate = myGroups.some(
-      (g) => g.name.toLowerCase() === groupName.trim().toLowerCase()
-    );
-    if (isDuplicate) {
-      setMessage("⚠️ You already have a group with this name.");
-      setMessageType("warning");
-      return;
-    }
-
-    if (!user || !user.id) {
-      setMessage("❌ You must be logged in to create a group.");
-      setMessageType("error");
-      return;
-    }
-
     setSubmitting(true);
-
     try {
       const formData = new FormData();
       formData.append("name", groupName);
       formData.append("description", description);
       formData.append("visibility", visibility);
-      formData.append("created_by", user.id);
+      formData.append("created_by", user?.id);
       if (groupPhoto) formData.append("group_photos", groupPhoto);
 
       const res = await fetch(`${API_URL}/create_group.php`, {
@@ -120,28 +103,6 @@ const CreateGroup = ({ user }) => {
     }
   };
 
-  // ✅ Respond to invite
-  const respondToInvite = async (groupId, action) => {
-    try {
-      const res = await fetch(`${API_URL}/respond_to_invite.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          group_id: groupId,
-          user_id: user.id,
-          action,
-        }),
-      });
-
-      const data = await res.json();
-      alert(data.message);
-      fetchGroups();
-    } catch (err) {
-      console.error("Error:", err);
-      alert("Network error.");
-    }
-  };
-
   // ✅ Delete group (Admin only)
   const deleteGroup = async (groupId) => {
     if (!window.confirm("Are you sure you want to delete this group?")) return;
@@ -150,10 +111,10 @@ const CreateGroup = ({ user }) => {
       const res = await fetch(`${API_URL}/delete_group.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ group_id: groupId, user_id: user.id }),
+        body: JSON.stringify({ group_id: groupId, user_id: user?.id }),
       });
-      const data = await res.json();
 
+      const data = await res.json();
       if (data.success) {
         alert("✅ Group deleted successfully.");
         fetchGroups();
@@ -166,6 +127,10 @@ const CreateGroup = ({ user }) => {
     }
   };
 
+  if (!user) {
+    return <p style={{ textAlign: "center" }}>Loading user...</p>;
+  }
+
   return (
     <div
       style={{
@@ -177,29 +142,47 @@ const CreateGroup = ({ user }) => {
         margin: "20px auto",
       }}
     >
-      <button
-        onClick={() => setShowForm(!showForm)}
-        disabled={!user}
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          backgroundColor: "transparent",
-          color: user ? "#007bff" : "#888",
-          width: "100%",
-          padding: "10px 16px",
-          border: `2px solid ${user ? "#007bff" : "#ccc"}`,
-          borderRadius: "6px",
-          cursor: user ? "pointer" : "not-allowed",
-          marginBottom: "1px",
-          opacity: user ? 1 : 0.6,
-          fontWeight: "bold",
-        }}
-      >
-        {showForm ? "Cancel" : " Create Group"}
-      </button>
+      {/* ✅ Admin Badge */}
+      {user?.role === "admin" && (
+        <div
+          style={{
+            background: "#ffd7d7",
+            color: "#d32f2f",
+            padding: "6px 12px",
+            borderRadius: "5px",
+            fontWeight: "bold",
+            textAlign: "center",
+            marginBottom: "10px",
+          }}
+        >
+          👑 Admin Panel
+        </div>
+      )}
 
-      {/* ✅ Group creation form */}
-      {showForm && (
+      {/* ✅ Create button visible only to admin */}
+      {user?.role === "admin" && (
+        <button
+          onClick={() => setShowForm(!showForm)}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            backgroundColor: "transparent",
+            color: "#007bff",
+            width: "100%",
+            padding: "10px 16px",
+            border: "2px solid #007bff",
+            borderRadius: "6px",
+            cursor: "pointer",
+            marginBottom: "10px",
+            fontWeight: "bold",
+          }}
+        >
+          {showForm ? "Cancel" : "➕ Create Group"}
+        </button>
+      )}
+
+      {/* ✅ Group creation form (only admin) */}
+      {user?.role === "admin" && showForm && (
         <div style={{ marginBottom: "50px" }}>
           <h3 style={{ marginBottom: "20px", marginTop: "20px" }}>
             Create a New Group
@@ -250,6 +233,7 @@ const CreateGroup = ({ user }) => {
         </div>
       )}
 
+      {/* ✅ Feedback messages */}
       {message && (
         <div
           style={{
@@ -283,7 +267,7 @@ const CreateGroup = ({ user }) => {
       <hr style={{ margin: "20px 0" }} />
 
       {/* ✅ Admin View */}
-      {user.role === "admin" ? (
+      {user?.role === "admin" ? (
         <>
           <h3 style={{ color: "#d32f2f" }}>All Groups (Admin)</h3>
           {allGroups.length === 0 ? (
@@ -330,12 +314,31 @@ const CreateGroup = ({ user }) => {
         </>
       ) : (
         <>
-          {/* ✅ Non-admin (your existing code for tabs) */}
-          {/* Your tab selection + groups display remains unchanged */}
+          {/* ✅ Non-admin users see their own groups */}
+          <h3>My Groups</h3>
+          {myGroups.length === 0 ? (
+            <p>No groups found.</p>
+          ) : (
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {myGroups.map((g) => (
+                <li
+                  key={g.id}
+                  style={{
+                    padding: "12px",
+                    borderBottom: "1px solid #ccc",
+                    background: "#fff",
+                  }}
+                >
+                  <strong>{g.name}</strong>
+                  <p>{g.description || "No description"}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </>
       )}
     </div>
-  ); 
+  );
 };
- 
+
 export default CreateGroup;

@@ -9,12 +9,12 @@ const AllEvents = () => {
   const cardsRef = useRef([]);
 
   // Convert URLs to clickable links
-  const createLinkifiedText = (text) => {
-    return text?.replace(
-      /(https?:\/\/[^\s]+)/g,
-      '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#2563eb; text-decoration:underline;">$1</a>'
-    );
-  };
+ const createLinkifiedText = (text) => {
+  return text.replace(
+    /(https?:\/\/[^\s]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#2563eb; word-break:break-word; overflow-wrap:anywhere; text-decoration:underline;">$1</a>'
+  );
+};
 
   useEffect(() => {
     fetch(`${API_URL}/get_event_activities.php`)
@@ -93,10 +93,17 @@ const AllEvents = () => {
 
               <div style={styles.content}>
                 <h3 style={styles.title}>{event.event_name}</h3>
-                <p
-                  style={styles.description}
-                  dangerouslySetInnerHTML={{ __html: createLinkifiedText(descriptionText) }}
-                />
+               <p
+  style={{
+    ...styles.description,
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
+    overflowWrap: "anywhere",
+  }}
+  dangerouslySetInnerHTML={{
+    __html: createLinkifiedText(event.description),
+  }}
+/>
                 <p style={styles.meta}>
                  Date: {new Date(event.event_date).toLocaleDateString()} | Location {event.location || "N/A"} | {event.country || "N/A"}
                 </p>

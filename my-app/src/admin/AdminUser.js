@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import * as XLSX from "xlsx"; // <-- Excel export library
 
 const API_URL = "http://localhost/coolpage/my-app/backend/admin_user_management.php";
 
@@ -27,18 +28,18 @@ const AdminUserPanel = () => {
     fetchUsers();
   }, []);
 
-  // 📝 Handle select user
+  // 📝 Select user
   const handleSelectUser = (user) => {
     setSelectedUser(user);
     setFormData(user);
   };
 
-  // 📝 Handle form input
+  // 📝 Input handler
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Update Info
+  // ✅ Update user info
   const updateInfo = async () => {
     try {
       const res = await fetch(API_URL, {
@@ -54,13 +55,17 @@ const AdminUserPanel = () => {
     }
   };
 
-  // ✅ Update Password
+  // 🔑 Update password
   const updatePassword = async () => {
     try {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ action: "update_password", id: selectedUser.id, password }),
+        body: new URLSearchParams({
+          action: "update_password",
+          id: selectedUser.id,
+          password,
+        }),
       });
       const data = await res.json();
       alert(data.message);
@@ -70,7 +75,7 @@ const AdminUserPanel = () => {
     }
   };
 
-  // ❌ Delete Account
+  // ❌ Delete account
   const deleteAccount = async () => {
     if (!window.confirm("Are you sure you want to delete this account?")) return;
 
@@ -89,11 +94,49 @@ const AdminUserPanel = () => {
     }
   };
 
+  // 📥 EXPORT USERS TO EXCEL
+  const downloadExcel = () => {
+    const cleanData = users.map((u) => ({
+      ID: u.id,
+      Username: u.username,
+      Email: u.email,
+      FirstName: u.first_name,
+      LastName: u.last_name,
+      Country: u.country,
+      Role: u.typeofuser,
+      CreatedAt: u.created_at,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(cleanData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+
+    XLSX.writeFile(workbook, "users.xlsx");
+  };
+
   return (
     <div style={{ display: "flex", gap: "20px", padding: "20px" }}>
-      {/* Users List */}
+      
+      {/* USERS LIST */}
       <div style={{ width: "250px", borderRight: "1px solid #ddd" }}>
         <h3>All Users</h3>
+
+        {/* Excel Download Button */}
+        <button
+          onClick={downloadExcel}
+          style={{
+            padding: "8px",
+            width: "100%",
+            background: "#3498db",
+            color: "white",
+            marginBottom: "10px",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Download Excel
+        </button>
+
         <ul style={{ listStyle: "none", padding: 0 }}>
           {users.map((u) => (
             <li
@@ -112,7 +155,7 @@ const AdminUserPanel = () => {
         </ul>
       </div>
 
-      {/* User Edit Form */}
+      {/* USER EDIT FORM */}
       {selectedUser && (
         <div style={{ flex: 1 }}>
           <h3>Edit User: {selectedUser.username}</h3>
@@ -130,7 +173,6 @@ const AdminUserPanel = () => {
             </button>
           </div>
 
-          {/* Password Update */}
           <h4 style={{ marginTop: "20px" }}>Change Password</h4>
           <input
             type="password"
@@ -138,11 +180,13 @@ const AdminUserPanel = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="New Password"
           />
-          <button onClick={updatePassword} style={{ marginLeft: "10px", background: "#3498db", color: "white", padding: "10px" }}>
+          <button
+            onClick={updatePassword}
+            style={{ marginLeft: "10px", background: "#3498db", color: "white", padding: "10px" }}
+          >
             Update Password
           </button>
 
-          {/* Delete Account */}
           <div style={{ marginTop: "20px" }}>
             <button onClick={deleteAccount} style={{ background: "#e74c3c", color: "white", padding: "10px" }}>
               Delete Account!
@@ -153,5 +197,5 @@ const AdminUserPanel = () => {
     </div>
   );
 };
-
-export default AdminUserPanel;  
+ 
+export default AdminUserPanel;

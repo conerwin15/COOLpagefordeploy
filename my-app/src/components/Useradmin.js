@@ -17,7 +17,7 @@ import Bannerform from '../components/banners/BannerUpload.js'
 import BannersShow from '../components/banners/BannerDisplay.js';
 import Coolicon from  '../components/icon/coolactivitiesicon.js'
 import AddCoolActivity from '../components/addCoolactivities/AddCoolActivity.js'
-import Eventlist from './addCoolactivities/Evenlistverticalview'
+import Eventlist from './addCoolactivities/EvenlistverticalviewAdmin.js'
 
 const Useradmin = ({ user, posts, onRefresh, onLike, likes, userLiked, onLogout, navigateToProfile }) => {
   const [loading, setLoading] = useState(true);
@@ -593,7 +593,7 @@ const toggleSidebar = (type) => {
 
   <NewsCarousel user={user} />
 
-</div> <Eventlist />
+</div> <Eventlist user={user} />
               <PostListadmin 
                   posts={currentPosts}
                   user={user}

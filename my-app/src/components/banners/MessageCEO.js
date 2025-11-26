@@ -37,12 +37,12 @@ const MessageFromFounder = () => {
     width: "100%",
     display: "block",
     textAlign: "center",
-    margin: "20px auto",
+    margin: "10px auto",
         fontSize: "1.5rem",
     fontWeight: "800",
   }}
 >
-   Message from
+   Welcome and
   <span
     style={{
       background: "linear-gradient(90deg, #007bff, #00c6ff)",
@@ -50,7 +50,7 @@ const MessageFromFounder = () => {
       WebkitTextFillColor: "transparent",
     }}
   >
-    {" "}the Founder
+    {" "}Opening Message by Mike
   </span>
 </h2>
 
@@ -63,7 +63,7 @@ const MessageFromFounder = () => {
           borderRadius: "20px",
           padding: "40px 30px",
           maxWidth: "900px",
-                  gap: "25px",
+                  gap: "10px",
           boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
           transform: "rotate(-1.5deg)",
           transition: "transform 0.5s ease",
@@ -98,7 +98,7 @@ const MessageFromFounder = () => {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            gap: "100px",
+            gap: "20px",
             flexWrap: "wrap",
           }}
         >

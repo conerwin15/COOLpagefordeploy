@@ -56,7 +56,6 @@ export default function Header() {
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-radius: 0 0 12px 12px; /* optional soft curve bottom */
 }
 
   .logo {

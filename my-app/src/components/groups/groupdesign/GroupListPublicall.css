@@ -1,8 +1,8 @@
 .group-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 columns on desktop */
+  grid-template-columns: repeat(5, 1fr); /* 4 columns on desktop */
   gap: 0px;
-  margin: 30px;
+  margin: 1px;
   justify-items: center; /* centers the cards */
 }
 
@@ -49,7 +49,7 @@
 
   height:300px;
        /* responsive width */
-  width: 150px;    /* prevent card from stretching too wide */
+  width: 250px;    /* prevent card from stretching too wide */
 }
 
 

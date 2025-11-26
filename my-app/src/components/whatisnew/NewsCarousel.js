@@ -81,17 +81,25 @@ const NewsCarousel = (user) => {
   };
 
   // Responsive slides
+
+
   useEffect(() => {
     const updateSlides = () => {
-      const width = window.innerWidth;
-      let slides = width < 768 ? 1 : width < 1024 ? 2 : Math.max(2, Math.floor(width / 400));
-      setSlidesToShow(slides);
+      if (window.innerWidth < 768) {
+        setSlidesToShow(1); // mobile
+      } else if (window.innerWidth < 1024) {
+        setSlidesToShow(2); // tablet
+      } else {
+        setSlidesToShow(4); // desktop
+      }
     };
 
-    updateSlides();
+    updateSlides(); // run on mount
     window.addEventListener("resize", updateSlides);
+
     return () => window.removeEventListener("resize", updateSlides);
   }, []);
+
 
   const settings = {
     dots: false,

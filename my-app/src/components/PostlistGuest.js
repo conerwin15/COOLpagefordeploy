@@ -5,7 +5,7 @@ import ReplyButton from './icon/replybutton';
 import UnLikeButtons from './icon/unlikebutton';
 import DeleteButtons from './icon/deleteicon';
 import ShareButton from './icon/shareicome';
-import NestedReplies from './nestedreply';
+
 
 
 const PostListGuest = ({ posts, onReply, user, onRefresh }) => {
@@ -19,7 +19,7 @@ const PostListGuest = ({ posts, onReply, user, onRefresh }) => {
   const [userLiked, setUserLiked] = useState({});
   const [showReplies, setShowReplies] = useState({});
   const scrollRef = useRef(null);
-  const postsPerPage = 5;
+  const postsPerPage = 3;
     const [likedPosts, setLikedPosts] = useState([]); // ✅ Declare here
   const [expandedContent, setExpandedContent] = useState({});
 const [showDropdown, setShowDropdown] = useState({});
@@ -256,9 +256,9 @@ const getMimeType = (url) => {
   className="post-list"
   style={{
     width: '100%',
-    maxWidth: '100%',
+    maxWidth: '900px',
     margin: '0 auto',
-    padding: window.innerWidth <= 768 ? '10px 5px 80px 5px' : '20px 10px 100px 5px',
+padding: window.innerWidth <= 768 ? '10px 5px 20px 5px' : '20px 10px 30px 5px',
      flexDirection: window.innerWidth <= 768 ? "column" : "row",
 
     boxSizing: 'border-box'
@@ -271,7 +271,6 @@ const getMimeType = (url) => {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    backgroundColor: '#fff', // ensure visibility
     padding: '10px 0',
     display: 'flex',
     flexWrap: 'wrap',
@@ -308,7 +307,7 @@ const getMimeType = (url) => {
     style={{
       display: 'flex',
       gap: '10px',
-      alignItems: 'center',
+      alignItems: 'end',
     }}
   >
     <input
@@ -321,7 +320,7 @@ const getMimeType = (url) => {
         borderRadius: '8px',
         border: '1px solid #ccc',
         fontSize: '10px',
-        width: window.innerWidth <= 768 ? '50%' : '300px',
+        width: window.innerWidth <= 768 ? '50%' : '200px',
         height: '35px',
         boxSizing: 'border-box',
       }}
@@ -333,9 +332,9 @@ const getMimeType = (url) => {
       style={{
         padding: '10px',
         borderRadius: '8px',
-        border: '1px solid #ccc',
+        border: 'n',
         fontSize: '10px',
-        width: window.innerWidth <= 768 ? '50%' : '150px',
+        width: window.innerWidth <= 768 ? '50%' : '200px',
         height: '35px',
         boxSizing: 'border-box',
       }}

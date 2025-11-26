@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./groupdesign/CreateGroupForm.css"; // 🎨 we’ll style separately
+import "./groupdesign/CreateGroupForm.css";
 const API_URL = process.env.REACT_APP_API_URL;
 
 export default function CreateGroupForm({ user, onGroupCreated }) {
@@ -49,7 +49,7 @@ export default function CreateGroupForm({ user, onGroupCreated }) {
         setDescription("");
         setVisibility("public");
         setGroupPhoto(null);
-        setShowForm(false); // hide after success
+        setShowForm(false);
         onGroupCreated?.();
       } else {
         setMessage(`❌ ${data.message}`);
@@ -66,11 +66,14 @@ export default function CreateGroupForm({ user, onGroupCreated }) {
 
   return (
     <div className="create-group-wrapper">
-      <button className="toggle-btn" onClick={toggleForm}>
-        {showForm ? "✖ Cancel" : "+ Create Group"}
-      </button>
+      {/* ✅ Only show Create button if user is admin */}
+      {user?.typeofuser === "admin" && (
+        <button className="toggle-btn" onClick={toggleForm}>
+          {showForm ? "✖ Cancel" : "+ Create Group"}
+        </button>
+      )}
 
-      {showForm && (
+      {showForm && user?.typeofuser === "admin" && (
         <div className="form-card">
           <h3>Create a New Group</h3>
 
@@ -95,8 +98,8 @@ export default function CreateGroupForm({ user, onGroupCreated }) {
             onChange={(e) => setVisibility(e.target.value)}
             className="input-field"
           >
-            <option value="public">🌍 Public</option>
-            <option value="private">🔒 Private</option>
+            <option value="public">Public</option>
+            <option value="private"> Private</option>
           </select>
 
           <input
@@ -114,11 +117,9 @@ export default function CreateGroupForm({ user, onGroupCreated }) {
             {submitting ? "Submitting..." : "Submit Group"}
           </button>
 
-          {message && (
-            <div className={`message ${messageType}`}>{message}</div>
-          )}
+          {message && <div className={`message ${messageType}`}>{message}</div>}
         </div>
       )}
-    </div> 
+    </div>
   );
 }

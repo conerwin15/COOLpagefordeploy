@@ -3,7 +3,9 @@
   box-sizing: border-box;      /* keeps padding/borders inside declared width */
 }
 
+
 html, body {
+
   margin: 0;
   padding: 0;
   width: 100%;

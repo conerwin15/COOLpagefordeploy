@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-
+import Delete from "../icon/deleteicon"
 const API_URL = process.env.REACT_APP_API_URL;
 
-export default function BannerCarousel() {
+export default function BannerCarousel({ user }) {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fade, setFade] = useState(true); // For fade effect
 
-  // Fetch banners from backend
+  // ✅ Fetch banners from backend
   useEffect(() => {
     const fetchBanners = async () => {
       try {
@@ -27,7 +27,7 @@ export default function BannerCarousel() {
     fetchBanners();
   }, []);
 
-  // Auto-rotate banners every 5 seconds
+  // ✅ Auto-rotate banners
   useEffect(() => {
     if (banners.length === 0) return;
     const interval = setInterval(() => {
@@ -40,20 +40,32 @@ export default function BannerCarousel() {
     return () => clearInterval(interval);
   }, [banners]);
 
-  const prevBanner = () => {
-    setFade(false);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
-      setFade(true);
-    }, 500);
-  };
+  // ✅ Delete banner (for admin)
+  const handleDelete = async (bannerId) => {
+    if (!window.confirm("Are you sure you want to delete this banner?")) return;
 
-  const nextBanner = () => {
-    setFade(false);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % banners.length);
-      setFade(true);
-    }, 500);
+    try {
+      const res = await fetch(`${API_URL}/delete_banner.php`, {
+        method: "POST", // ✅ your backend expects POST
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: bannerId }),
+      });
+
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.message || "Failed to delete banner");
+
+      // ✅ Update state locally
+      setBanners((prev) => prev.filter((b) => b.id !== bannerId));
+      setCurrentIndex((prev) =>
+        prev >= banners.length - 1 ? 0 : prev
+      );
+
+      alert("Banner deleted successfully!");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Error deleting banner.");
+    }
   };
 
   if (loading) return <p style={{ textAlign: "center" }}>Loading banners...</p>;
@@ -65,44 +77,44 @@ export default function BannerCarousel() {
       style={{
         position: "relative",
         maxWidth: "100%",
-
-  
         overflow: "hidden",
-        opacity: 1, // Always visible
+        opacity: 1,
         transform: "translateY(0)",
         transition: "opacity 0.8s ease-out, transform 0.8s ease-out",
       }}
     >
-      {/* Banner Image with fade effect */}
+      {/* ✅ Banner Image with fade effect */}
       {banners[currentIndex] && (
         <div
-  style={{
-    width: "100%",
-    height: "auto",
-    maxHeight: "500px",
-    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.9)", // ✅ softer, more natural shadow
- 
-    transition: "transform 0.5s ease, opacity 0.5s ease, box-shadow 0.3s ease",
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.boxShadow = "0 10px 25px rgba(0, 0, 0, 0.4)";
-    e.currentTarget.style.transform = "translateY(-5px)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.boxShadow = "0 6px 20px rgba(0, 0, 0, 0.25)";
-    e.currentTarget.style.transform = "translateY(0)";
-  }}
->
-
+          style={{
+            width: "100%",
+            height: "auto",
+            maxHeight: "auto",
+            boxShadow: "0 6px 20px rgba(0, 0, 0, 0.9)",
+            transition:
+              "transform 0.5s ease, opacity 0.5s ease, box-shadow 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow =
+              "0 10px 25px rgba(0, 0, 0, 0.4)";
+            e.currentTarget.style.transform = "translateY(-5px)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow =
+              "0 6px 20px rgba(0, 0, 0, 0.25)";
+            e.currentTarget.style.transform = "translateY(0)";
+          }}
+        >
           <img
             src={`${API_URL}/uploads/banners/${banners[currentIndex].image}`}
             alt={`Banner ${banners[currentIndex].id}`}
             style={{
               width: "100%",
               height: "auto",
-              maxHeight: "400px",
-              objectFit: "cover",
-              transition: "opacity 0.5s ease-in-out, transform 0.5s ease-in-out",
+              maxHeight: "auto",
+           
+              transition:
+                "opacity 0.5s ease-in-out, transform 0.5s ease-in-out",
               opacity: fade ? 1 : 0,
               display: "block",
             }}
@@ -110,46 +122,40 @@ export default function BannerCarousel() {
         </div>
       )}
 
-      {/* Welcome Overlay 
-      <div
-        style={{
-          position: "absolute",
-          bottom: "15%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          color: "#fff",
-          textAlign: "center",
-          padding: "clamp(5px, 2vw, 15px)",
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
-          borderRadius: "12px",
-          width: "clamp(150px, 70%, 100%)",
-          boxShadow: "0 4px 20px rgba(9, 11, 14, 0.5)",
-        }}
-      >
-        <h1
+      {/* Delete button visible only for admin */}
+      {user?.role === "admin" && banners[currentIndex] && (
+        <button
+          onClick={() => handleDelete(banners[currentIndex].id)}
           style={{
-            fontSize: "clamp(1rem, 4vw, 2rem)",
-            margin: "0 0 8px",
-            fontWeight: "700",
-            lineHeight: "1.2",
-            textShadow: "2px 2px 6px rgba(0,0,0,0.4)",
+            position: "absolute",
+            top: "12px",
+            right: "12px",
+            background: "rgba(255,255,255,0.95)",
+            border: "none",
+            borderRadius: "50%",
+            width: "36px",
+            height: "36px",
+            fontSize: "18px",
+            cursor: "pointer",
+            color: "#f44336",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+            transition: "transform 0.3s ease, background 0.3s ease",
           }}
-        >
-          Welcome to the COOL COMMUNITY
-        </h1>
-        <p
-          style={{
-            fontSize: "clamp(0.8rem, 2.5vw, 1.1rem)",
-            margin: 0,
-            fontWeight: "500",
-            textShadow: "1px 1px 4px rgba(0,0,0,0.6)",
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.1)";
+            e.currentTarget.style.background = "#fff";
           }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.background = "rgba(255,255,255,0.95)";
+          }}
+          title="Delete Banner"
         >
-          Join with our learners and discussions
-        </p>
-      </div>
+         <Delete />
+        </button>
+      )}
 
-      {/* Dot Indicators */}
+      {/* ✅ Pagination dots */}
       <div
         style={{
           position: "absolute",
@@ -174,7 +180,8 @@ export default function BannerCarousel() {
               width: "10px",
               height: "10px",
               borderRadius: "50%",
-              backgroundColor: currentIndex === idx ? "#007bff" : "#ccc",
+              backgroundColor:
+                currentIndex === idx ? "#007bff" : "#ccc",
               cursor: "pointer",
             }}
           />

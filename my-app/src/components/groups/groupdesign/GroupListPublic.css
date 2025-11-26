@@ -1,9 +1,13 @@
 .group-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 8px; /* default small gap */
-  margin: 8px;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 900px; /* keep the 900px limit */
+  margin: 10px auto; /* ✅ centers the grid horizontally */
+  justify-items: center; /* centers items inside each grid cell */
+  justify-content: center; /* ✅ centers the entire grid */
+  box-sizing: border-box;
 }
 
 /* ✅ Desktop (above 1400px) → extra tight spacing */
@@ -39,42 +43,102 @@
 }
 
 /* ✅ Card style */
-.group-cardpublic {
-  background-color: #fff;
-  border-radius: 12px;
-  border: 1px solid #eee;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
+
+
+
+
+
+.group-carousel-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto; /* ✅ centers horizontally */
+  padding: 20px 0;
+  
+  align-items: center; /* ✅ center horizontally */
+  justify-content: center; /* ✅ center vertically if space allows */
+  box-sizing: border-box;
+  position: relative;
+  text-align: center;
+}
+/* The slider container */
+.group-carousel {
   display: flex;
-  flex-direction: column;
-  height: 380px;
-  width: 230px;
-  max-width: 240px;
+  align-items: center;
+  justify-content: center;
 }
 
-.group-cardpublic:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* Adjust arrow positions */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  font-size: 2rem;
+  color: #333;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
-/* Optional smaller card variant */
+.arrow:hover {
+  background: rgba(240, 240, 240, 1);
+}
+
+.arrow.prev {
+  left: -45px; /* adjust based on layout */
+}
+
+.arrow.next {
+  right: -45px;
+}
+
+/* Responsive arrow adjustment */
+@media (max-width: 768px) {
+  .arrow.prev {
+    left: -25px;
+  }
+  .arrow.next {
+    right: -25px;
+  }
+}
+
+/* Card style: remove fixed widths, let grid handle sizing */
+.group-cardpublic, 
 .group-cardpublic2 {
   background-color: #fff;
   border-radius: 12px;
   border: 1px solid #eee;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
   transition: all 0.2s ease;
-  height: 300px;
-  width: 150px;
+  display: flex;
+  flex-direction: column;
+  height: 380px; /* uniform height */
+  width: 100%; /* let grid stretch card */
+  max-width: 280px; /* optional max */
+}
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .group-cardpublic2 {
+    max-width: 500px; /* larger cards on smaller screens */
+    width: 90%;       /* ensures it’s centered */
+  }
 }
 
-/* ✅ Image + content layout */
+.group-cardpublic2 {
+  height: 300px;
+}
+
+/* Image + content layout */
 .card-image img {
   width: 100%;
   height: 120px;
-  object-fit: contain;
   border-radius: 10px;
 }
 
@@ -124,3 +188,62 @@
   text-align: center;
   padding: 20px;
 }
+
+/* Slick arrows outside carousel */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #007bff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.arrow:hover {
+  background: #007bff;
+  color: #fff;
+}
+
+/* Desktop - arrows based on card width */
+.arrow.prev {
+  left: -50px; /* adjust to your max-width card */
+}
+
+.arrow.next {
+  right: -50px;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .arrow.prev {
+    left: -40px;
+  }
+  .arrow.next {
+    right: -40px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .arrow {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  .arrow.prev {
+    left: -15px;
+  }
+  .arrow.next {
+    right: -15px;
+  }
+}
+
